@@ -5,6 +5,13 @@ let audioChunks = [];
 let isRecording = false;
 let currentMode = 'apprentice';
 
+function showPage(pageNumber) {
+    document.querySelectorAll('.page').forEach(page => {
+        page.classList.remove('active');
+    });
+    document.getElementById(`page${pageNumber}`).classList.add('active');
+}
+
 function generateSessionId() {
     return 'session-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
 }
@@ -17,7 +24,8 @@ function getImagePath(articleId) {
 }
 
 async function searchProducts() {
-    const inputText = document.getElementById('inputText').value.trim();
+    const inputText = document.getElementById('inputText').value.trim() || 
+                      document.getElementById('inputText2')?.value.trim();
     const loadingDiv = document.getElementById('loading');
     const searchBtn = document.getElementById('searchBtn');
 
@@ -211,6 +219,9 @@ function displayResults(data) {
 
     resultsDiv.innerHTML = html;
     
+    // Switch to page 2 to show results
+    showPage(2);
+    
     // Automatically speak the details field if it exists
     if (parsedResponse.product_recommended_1 && parsedResponse.product_recommended_1.tip2) {
         let details = '';
@@ -312,7 +323,12 @@ async function transcribeAudio(audioBlob) {
 
         const data = await response.json();
         const transcribedText = data.text;
+        
+        // Update both input fields
         document.getElementById('inputText').value = transcribedText;
+        if (document.getElementById('inputText2')) {
+            document.getElementById('inputText2').value = transcribedText;
+        }
         
         // Automatically call the agent with transcribed text
         loadingDiv.textContent = 'Searching...';
