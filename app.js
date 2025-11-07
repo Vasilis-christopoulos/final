@@ -1,5 +1,4 @@
 const API_URL = 'https://8abneslr0c.execute-api.us-east-1.amazonaws.com/prod/invoke';
-const OPENAI_API_KEY = prompt('Enter your OpenAI API Key:') || '';
 let sessionId = generateSessionId();
 let mediaRecorder;
 let audioChunks = [];
@@ -52,24 +51,40 @@ function displayResults(data) {
     // Display main product recommendation
     if (parsedResponse.product_recommended_1) {
         const product = parsedResponse.product_recommended_1;
+        const productId = 'product-1';
         html += `
             <div class="product-card">
                 <h3>Top Recommendation</h3>
                 <div class="product-info">
                     <p><strong>Product Code:</strong> ${product.product_code}</p>
-                    <p><strong>Discount:</strong> ${product.discount}%</p>
-                    <p><strong>Fit:</strong> ${product.fit_notes}</p>
                     ${product.tip2 ? `
                         <p><strong>Material:</strong> ${product.tip2.material}</p>
                         <p><strong>Season:</strong> ${product.tip2.season}</p>
                         <p><strong>Collection:</strong> ${product.tip2.collection}</p>
                         <p><strong>Details:</strong> ${product.tip2.product_specific_recommendation}</p>
                     ` : ''}
+                    
+                    <div class="collapsible-section">
+                        <button class="info-btn" onclick="toggleInfo('${productId}-discount')">Discount</button>
+                        <div id="${productId}-discount" class="info-content hidden">
+                            <p>${product.discount}%</p>
+                        </div>
+                    </div>
+                    
+                    <div class="collapsible-section">
+                        <button class="info-btn" onclick="toggleInfo('${productId}-fit')">Fit</button>
+                        <div id="${productId}-fit" class="info-content hidden">
+                            <p>${product.fit_notes}</p>
+                        </div>
+                    </div>
+                    
                     ${product.style_names && product.style_names.length > 0 ? `
-                        <div>
-                            <strong>Styles:</strong>
-                            <div class="styles-list">
-                                ${product.style_names.map(style => `<span class="style-tag">${style}</span>`).join('')}
+                        <div class="collapsible-section">
+                            <button class="info-btn" onclick="toggleInfo('${productId}-styles')">Styles</button>
+                            <div id="${productId}-styles" class="info-content hidden">
+                                <div class="styles-list">
+                                    ${product.style_names.map(style => `<span class="style-tag">${style}</span>`).join('')}
+                                </div>
                             </div>
                         </div>
                     ` : ''}
@@ -229,4 +244,9 @@ async function callAgent(inputText) {
     } finally {
         loadingDiv.classList.add('hidden');
     }
+}
+
+function toggleInfo(elementId) {
+    const element = document.getElementById(elementId);
+    element.classList.toggle('hidden');
 }
