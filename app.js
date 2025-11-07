@@ -73,101 +73,86 @@ function displayResults(data) {
             }
         }
         
+        const price = product.price || '0.00';
+        
         html += `
             <div class="product-card">
                 <h3>Top Recommendation</h3>
-                <div class="product-display">
+                <div class="product-display landscape">
                     <div class="product-image-container">
                         <img src="${getImagePath(productCode)}" 
                              alt="Product ${productCode}" 
                              class="product-image"
                              onerror="this.onerror=null; this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22300%22 height=%22300%22%3E%3Crect fill=%22%23ddd%22 width=%22300%22 height=%22300%22/%3E%3Ctext fill=%22%23999%22 x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22%3ENo Image%3C/text%3E%3C/svg%3E';">
-                        <p class="product-code-label">Product Code: ${productCode}</p>
+                        <p class="product-code-label">${productCode}</p>
                     </div>
                     
                     <div class="product-info">
-                        ${detailsText ? `<p><strong>Details:</strong> ${detailsText}</p>` : ''}
-                        
-                        ${product.tip2 && typeof product.tip2 === 'object' ? `
-                            <p><strong>Material:</strong> ${product.tip2.material}</p>
-                            <p><strong>Season:</strong> ${product.tip2.season}</p>
-                            <p><strong>Collection:</strong> ${product.tip2.collection}</p>
-                        ` : ''}
-                        
-                        <div class="collapsible-section">
-                            <button class="info-btn" onclick="toggleInfo('${productId}-discount')">Discount</button>
-                            <div id="${productId}-discount" class="info-content hidden">
-                                <p>${discount}%</p>
-                            </div>
+                        <div class="product-price">$${price}</div>
+                        <div class="button-stack compact">
+                            <button class="info-btn small" onclick="toggleInfo('${productId}-discount')">Discount</button>
+                            <button class="info-btn small" onclick="toggleInfo('${productId}-fit')">Fit</button>
+                            ${product.style_names ? `<button class="info-btn small" onclick="toggleInfo('${productId}-styles')">Styles</button>` : ''}
                         </div>
-                        
-                        <div class="collapsible-section">
-                            <button class="info-btn" onclick="toggleInfo('${productId}-fit')">Fit</button>
-                            <div id="${productId}-fit" class="info-content hidden">
-                                <p>${fitNotes}</p>
-                            </div>
+                        <div id="${productId}-discount" class="info-content hidden">
+                            <p>${discount}%</p>
                         </div>
-                        
+                        <div id="${productId}-fit" class="info-content hidden">
+                            <p>${fitNotes}</p>
+                        </div>
                         ${product.style_names ? `
-                            <div class="collapsible-section">
-                                <button class="info-btn" onclick="toggleInfo('${productId}-styles')">Styles</button>
-                                <div id="${productId}-styles" class="info-content hidden">
-                                    ${Array.isArray(product.style_names) ? `
-                                        <div class="styles-list">
-                                            ${product.style_names.map(style => `<span class="style-tag">${style}</span>`).join('')}
-                                        </div>
-                                    ` : `<p>${product.style_names}</p>`}
-                                </div>
+                            <div id="${productId}-styles" class="info-content hidden">
+                                <p>${Array.isArray(product.style_names) ? product.style_names.join(', ') : product.style_names}</p>
                             </div>
                         ` : ''}
                     </div>
                 </div>
+                ${detailsText ? `
+                    <div class="product-details-full">
+                        <p>${detailsText}</p>
+                    </div>
+                ` : ''}
             </div>
         `;
     }
 
-    // Display additional recommendations
+    // Display additional recommendations in grid
+    let alternativeProducts = '';
+    
     if (parsedResponse.product_recommended_2) {
         const product2 = parsedResponse.product_recommended_2;
-        // Handle both formats: object (new) or string (old)
         const isObject2 = typeof product2 === 'object';
         const productCode2 = isObject2 ? product2.article_id : product2;
+        const price2 = isObject2 ? (product2.price || '0.00') : '0.00';
         
-        html += `
+        alternativeProducts += `
             <div class="product-card">
-                <h3>Alternative Option</h3>
-                <div class="product-display">
+                <h3>Alternative</h3>
+                <div class="product-display portrait">
                     <div class="product-image-container">
                         <img src="${getImagePath(productCode2)}" 
                              alt="Product ${productCode2}" 
                              class="product-image"
-                             onerror="this.onerror=null; this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22300%22 height=%22300%22%3E%3Crect fill=%22%23ddd%22 width=%22300%22 height=%22300%22/%3E%3Ctext fill=%22%23999%22 x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22%3ENo Image%3C/text%3E%3C/svg%3E';">
-                        <p class="product-code-label">Product Code: ${productCode2}</p>
+                             onerror="this.onerror=null; this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22300%22 height=%22400%22%3E%3Crect fill=%22%23ddd%22 width=%22300%22 height=%22400%22/%3E%3Ctext fill=%22%23999%22 x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22%3ENo Image%3C/text%3E%3C/svg%3E';">
+                        <p class="product-code-label">${productCode2}</p>
                     </div>
                     ${isObject2 ? `
                         <div class="product-info">
-                            ${product2.tip2 ? `<p><strong>Details:</strong> ${product2.tip2}</p>` : ''}
-                            
-                            <div class="collapsible-section">
+                            <div class="product-price">$${price2}</div>
+                            <div class="button-stack">
                                 <button class="info-btn" onclick="toggleInfo('product-2-discount')">Discount</button>
-                                <div id="product-2-discount" class="info-content hidden">
-                                    <p>${product2.discount}%</p>
-                                </div>
-                            </div>
-                            
-                            <div class="collapsible-section">
                                 <button class="info-btn" onclick="toggleInfo('product-2-fit')">Fit</button>
-                                <div id="product-2-fit" class="info-content hidden">
-                                    <p>${product2.fit_notes}</p>
-                                </div>
+                                ${product2.style_names ? `<button class="info-btn" onclick="toggleInfo('product-2-styles')">Styles</button>` : ''}
                             </div>
-                            
+                            <div id="product-2-discount" class="info-content hidden">
+                                <p>${product2.discount}%</p>
+                            </div>
+                            <div id="product-2-fit" class="info-content hidden">
+                                <p>${product2.fit_notes}</p>
+                            </div>
                             ${product2.style_names ? `
-                                <div class="collapsible-section">
-                                    <button class="info-btn" onclick="toggleInfo('product-2-styles')">Styles</button>
-                                    <div id="product-2-styles" class="info-content hidden">
-                                        <p>${product2.style_names}</p>
-                                    </div>
+                                <div id="product-2-styles" class="info-content hidden">
+                                    <p>${product2.style_names}</p>
                                 </div>
                             ` : ''}
                         </div>
@@ -179,45 +164,38 @@ function displayResults(data) {
 
     if (parsedResponse.product_recommended_3) {
         const product3 = parsedResponse.product_recommended_3;
-        // Handle both formats: object (new) or string (old)
         const isObject3 = typeof product3 === 'object';
         const productCode3 = isObject3 ? product3.article_id : product3;
+        const price3 = isObject3 ? (product3.price || '0.00') : '0.00';
         
-        html += `
+        alternativeProducts += `
             <div class="product-card">
                 <h3>Another Option</h3>
-                <div class="product-display">
+                <div class="product-display portrait">
                     <div class="product-image-container">
                         <img src="${getImagePath(productCode3)}" 
                              alt="Product ${productCode3}" 
                              class="product-image"
-                             onerror="this.onerror=null; this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22300%22 height=%22300%22%3E%3Crect fill=%22%23ddd%22 width=%22300%22 height=%22300%22/%3E%3Ctext fill=%22%23999%22 x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22%3ENo Image%3C/text%3E%3C/svg%3E';">
-                        <p class="product-code-label">Product Code: ${productCode3}</p>
+                             onerror="this.onerror=null; this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22300%22 height=%22400%22%3E%3Crect fill=%22%23ddd%22 width=%22300%22 height=%22400%22/%3E%3Ctext fill=%22%23999%22 x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22%3ENo Image%3C/text%3E%3C/svg%3E';">
+                        <p class="product-code-label">${productCode3}</p>
                     </div>
                     ${isObject3 ? `
                         <div class="product-info">
-                            ${product3.tip2 ? `<p><strong>Details:</strong> ${product3.tip2}</p>` : ''}
-                            
-                            <div class="collapsible-section">
+                            <div class="product-price">$${price3}</div>
+                            <div class="button-stack">
                                 <button class="info-btn" onclick="toggleInfo('product-3-discount')">Discount</button>
-                                <div id="product-3-discount" class="info-content hidden">
-                                    <p>${product3.discount}%</p>
-                                </div>
-                            </div>
-                            
-                            <div class="collapsible-section">
                                 <button class="info-btn" onclick="toggleInfo('product-3-fit')">Fit</button>
-                                <div id="product-3-fit" class="info-content hidden">
-                                    <p>${product3.fit_notes}</p>
-                                </div>
+                                ${product3.style_names ? `<button class="info-btn" onclick="toggleInfo('product-3-styles')">Styles</button>` : ''}
                             </div>
-                            
+                            <div id="product-3-discount" class="info-content hidden">
+                                <p>${product3.discount}%</p>
+                            </div>
+                            <div id="product-3-fit" class="info-content hidden">
+                                <p>${product3.fit_notes}</p>
+                            </div>
                             ${product3.style_names ? `
-                                <div class="collapsible-section">
-                                    <button class="info-btn" onclick="toggleInfo('product-3-styles')">Styles</button>
-                                    <div id="product-3-styles" class="info-content hidden">
-                                        <p>${product3.style_names}</p>
-                                    </div>
+                                <div id="product-3-styles" class="info-content hidden">
+                                    <p>${product3.style_names}</p>
                                 </div>
                             ` : ''}
                         </div>
@@ -226,13 +204,10 @@ function displayResults(data) {
             </div>
         `;
     }
-
-    // Session info
-    html += `
-        <div class="session-info">
-            Session: ${data.sessionId} | Event Count: ${data.eventCount}
-        </div>
-    `;
+    
+    if (alternativeProducts) {
+        html += `<div class="recommendations-grid">${alternativeProducts}</div>`;
+    }
 
     resultsDiv.innerHTML = html;
     
@@ -270,41 +245,47 @@ document.getElementById('inputText').addEventListener('keypress', function(e) {
     }
 });
 
-async function toggleRecording() {
+async function startRecording() {
     const voiceBtn = document.getElementById('voiceBtn');
     const recordingStatus = document.getElementById('recordingStatus');
 
-    if (!isRecording) {
-        try {
-            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-            mediaRecorder = new MediaRecorder(stream);
-            audioChunks = [];
+    if (isRecording) return;
 
-            mediaRecorder.ondataavailable = (event) => {
-                audioChunks.push(event.data);
-            };
+    try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        mediaRecorder = new MediaRecorder(stream);
+        audioChunks = [];
 
-            mediaRecorder.onstop = async () => {
-                const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
-                await transcribeAudio(audioBlob);
-                stream.getTracks().forEach(track => track.stop());
-            };
+        mediaRecorder.ondataavailable = (event) => {
+            audioChunks.push(event.data);
+        };
 
-            mediaRecorder.start();
-            isRecording = true;
-            voiceBtn.classList.add('recording');
-            voiceBtn.textContent = '⏹️';
-            recordingStatus.classList.remove('hidden');
-        } catch (error) {
-            alert('Microphone access denied or not available: ' + error.message);
-        }
-    } else {
-        mediaRecorder.stop();
-        isRecording = false;
-        voiceBtn.classList.remove('recording');
-        voiceBtn.textContent = '🎤';
-        recordingStatus.classList.add('hidden');
+        mediaRecorder.onstop = async () => {
+            const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+            await transcribeAudio(audioBlob);
+            stream.getTracks().forEach(track => track.stop());
+        };
+
+        mediaRecorder.start();
+        isRecording = true;
+        voiceBtn.classList.add('recording');
+        recordingStatus.classList.remove('hidden');
+        recordingStatus.textContent = 'Hold to record...';
+    } catch (error) {
+        alert('Microphone access denied or not available: ' + error.message);
     }
+}
+
+function stopRecording() {
+    const voiceBtn = document.getElementById('voiceBtn');
+    const recordingStatus = document.getElementById('recordingStatus');
+
+    if (!isRecording) return;
+
+    mediaRecorder.stop();
+    isRecording = false;
+    voiceBtn.classList.remove('recording');
+    recordingStatus.classList.add('hidden');
 }
 
 async function transcribeAudio(audioBlob) {
@@ -386,12 +367,22 @@ function initPolly() {
     }
 }
 
-async function speakText(text) {
+async function speakText(text, whisper = false) {
     initPolly();
     
     try {
+        let textToSpeak = text;
+        let textType = 'text';
+        
+        // Use SSML for whispering
+        if (whisper) {
+            textToSpeak = `<speak><amazon:effect name="whispered">${text}</amazon:effect></speak>`;
+            textType = 'ssml';
+        }
+        
         const params = {
-            Text: text,
+            Text: textToSpeak,
+            TextType: textType,
             OutputFormat: 'mp3',
             VoiceId: 'Joanna',
             Engine: 'neural'
@@ -413,15 +404,10 @@ async function speakText(text) {
 
 function toggleInfo(elementId) {
     const element = document.getElementById(elementId);
-    const isHidden = element.classList.contains('hidden');
+    const textContent = element.textContent.trim();
     
-    element.classList.toggle('hidden');
-    
-    // If showing the content, speak it
-    if (isHidden) {
-        const textContent = element.textContent.trim();
-        speakText(textContent);
-    }
+    // Just speak the content in whisper, don't toggle visibility
+    speakText(textContent, true);
 }
 
 function selectMode(mode) {
