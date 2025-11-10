@@ -1,7 +1,7 @@
 # ALDO Whisper - AI-Powered Retail Assistant
 ## Hackathon Context
 
-This project was developed for the **ALDO x AWS Retail GenAI Hackathon**, demonstrating how generative AI can enhance the retail experience by empowering store employees with intelligent, context-aware product recommendations.
+This project was developed for the **ALDO x AWS Retail GenAI Hackathon**, demonstrating how generative AI can enhance the retail experience by empowering store employees with intelligent, context-aware product recommendations and won 1st place 🥇
 
 > **Note:** The AWS backend environment has been decommissioned, so the application is currently non-operational. This repository serves as a showcase of the solution architecture and implementation.
 
